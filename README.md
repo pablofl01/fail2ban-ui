@@ -397,7 +397,6 @@ podman run -d \
 ```bash
 -e OIDC_ENABLED=true \
 -e OIDC_PROVIDER=generic \
--e OIDC_ISSUER_URL=https://generic-oidc.example.com \
 -e OIDC_DISCOVERY_URL=https://your-oidc-provider.com/.well-known/openid-configuration \
 -e OIDC_CLIENT_ID=fail2ban-ui-client \
 -e OIDC_CLIENT_SECRET=your-secret \
@@ -684,7 +683,7 @@ For local development and testing, a complete OIDC environment is available in `
 **Required Environment Variables (when OIDC enabled):**
 ```bash
 OIDC_ENABLED=true
-OIDC_PROVIDER=keycloak|authentik|pocketid
+OIDC_PROVIDER=keycloak|authentik|pocketid|generic
 OIDC_ISSUER_URL=https://auth.example.com
 OIDC_CLIENT_ID=your-client-id
 OIDC_CLIENT_SECRET=your-client-secret
@@ -741,7 +740,6 @@ OIDC_REDIRECT_URL=https://fail2ban-ui.example.com/auth/callback
 ```bash
 OIDC_ENABLED=true
 OIDC_PROVIDER=generic
-OIDC_ISSUER_URL=https://generic-oidc.example.com
 OIDC_DISCOVERY_URL=https://your-oidc-provider.com/.well-known/openid-configuration
 OIDC_CLIENT_ID=fail2ban-ui-client
 OIDC_CLIENT_SECRET=your-secret
