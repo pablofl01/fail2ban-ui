@@ -90,8 +90,9 @@ type AppSettings struct {
 // OIDCConfig holds OIDC authentication configuration
 type OIDCConfig struct {
 	Enabled       bool     `json:"enabled"`
-	Provider      string   `json:"provider"` // keycloak, authentik, pocketid
+	Provider      string   `json:"provider"` // keycloak, authentik, pocketid, generic
 	IssuerURL     string   `json:"issuerURL"`
+	DiscoveryURL  string   `json:"discoveryURL"` // Custom discovery URL for generic providers (optional)
 	ClientID      string   `json:"clientID"`
 	ClientSecret  string   `json:"clientSecret"`
 	RedirectURL   string   `json:"redirectURL"`
@@ -1461,13 +1462,28 @@ func GetOIDCConfigFromEnv() (*OIDCConfig, error) {
 	if config.Provider == "" {
 		return nil, fmt.Errorf("OIDC_PROVIDER environment variable is required when OIDC_ENABLED=true")
 	}
-	if config.Provider != "keycloak" && config.Provider != "authentik" && config.Provider != "pocketid" {
-		return nil, fmt.Errorf("OIDC_PROVIDER must be one of: keycloak, authentik, pocketid")
+	if config.Provider != "keycloak" && config.Provider != "authentik" && config.Provider != "pocketid" && config.Provider != "generic" {
+		return nil, fmt.Errorf("OIDC_PROVIDER must be one of: keycloak, authentik, pocketid, generic")
 	}
 
 	config.IssuerURL = os.Getenv("OIDC_ISSUER_URL")
+	config.DiscoveryURL = os.Getenv("OIDC_DISCOVERY_URL")
+
+	// For generic providers, either IssuerURL or DiscoveryURL must be provided
+	if config.IssuerURL == "" && config.DiscoveryURL == "" {
+		return nil, fmt.Errorf("Either OIDC_ISSUER_URL or OIDC_DISCOVERY_URL environment variable is required when OIDC_ENABLED=true")
+	}
+
+	// If only DiscoveryURL is provided for generic provider, try to extract IssuerURL
+	if config.Provider == "generic" && config.IssuerURL == "" && config.DiscoveryURL != "" {
+		if strings.HasSuffix(config.DiscoveryURL, "/.well-known/openid-configuration") {
+			config.IssuerURL = strings.TrimSuffix(config.DiscoveryURL, "/.well-known/openid-configuration")
+		}
+	}
+
+	// Validate that we have an IssuerURL (either provided or extracted)
 	if config.IssuerURL == "" {
-		return nil, fmt.Errorf("OIDC_ISSUER_URL environment variable is required when OIDC_ENABLED=true")
+		return nil, fmt.Errorf("OIDC_ISSUER_URL is required when OIDC_ENABLED=true")
 	}
 
 	config.ClientID = os.Getenv("OIDC_CLIENT_ID")

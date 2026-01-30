@@ -40,14 +40,19 @@ services:
       # ============================================
       # Enable OIDC authentication to protect the web UI
       # - OIDC_ENABLED=true
-      # OIDC Provider: keycloak, authentik, or pocketid
+      # OIDC Provider: keycloak, authentik, pocketid, or generic
       # - OIDC_PROVIDER=keycloak
       # OIDC Issuer URL (required when OIDC_ENABLED=true)
       # Examples:
       #   Keycloak: https://keycloak.example.com/realms/your-realm
       #   Authentik: https://authentik.example.com/application/o/your-client-slug/
       #   Pocket-ID: https://pocket-id.example.com
+      #   Generic: https://your-oidc-provider.com
       # - OIDC_ISSUER_URL=https://keycloak.example.com/realms/your-realm
+      # OIDC Discovery URL (optional, for generic providers)
+      # Use this to specify a custom .well-known/openid-configuration endpoint
+      # If not provided, the standard /.well-known/openid-configuration will be used
+      # - OIDC_DISCOVERY_URL=https://your-oidc-provider.com/.well-known/openid-configuration
       # OIDC Client ID (required when OIDC_ENABLED=true)
       # - OIDC_CLIENT_ID=fail2ban-ui
       # OIDC Client Secret (required when OIDC_ENABLED=true)
@@ -75,11 +80,13 @@ services:
       # The claim to use as the username (e.g., email, preferred_username, sub)
       # - OIDC_USERNAME_CLAIM=preferred_username
       # Optional: Provider logout URL
-      # If not set, the logout URL will be auto-constructed using the standard OIDC logout endpoint: {issuer}/protocol/openid-connect/logout
+      # If not set, the logout URL will be auto-constructed using the standard OIDC logout endpoint
+      # For generic providers, you may need to specify the exact logout endpoint
       # Examples:
       #   Keycloak: https://keycloak.example.com/realms/your-realm/protocol/openid-connect/logout
       #   Authentik: https://authentik.example.com/application/o/your-client-slug/protocol/openid-connect/logout
       #   Pocket-ID: https://pocket-id.example.com/protocol/openid-connect/logout
+      #   Generic: https://your-oidc-provider.com/oauth2/sessions/logout
       # - OIDC_LOGOUT_URL=https://keycloak.example.com/realms/your-realm/protocol/openid-connect/logout
 
     volumes:

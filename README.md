@@ -101,7 +101,7 @@ Modern enterprises face increasing security challenges with generally distribute
 
 **Hardened for Production Environments**
 
-- **OIDC Authentication**: Optional OpenID Connect authentication supporting Keycloak, Authentik, and Pocket-ID
+- **OIDC Authentication**: Optional OpenID Connect authentication supporting Keycloak, Authentik, Pocket-ID and other generic providers
   - Secure session management with encrypted cookies (AES-GCM)
   - Automatic logout with provider integration
   - CSRF protection via state parameters
@@ -346,6 +346,7 @@ podman run -d \
   -e OIDC_ENABLED=true \
   -e OIDC_PROVIDER=keycloak \
   -e OIDC_ISSUER_URL=https://keycloak.example.com/realms/your-realm \
+  -e OIDC_DISCOVERY_URL=https://your-oidc-provider.com/.well-known/openid-configuration \
   -e OIDC_CLIENT_ID=fail2ban-ui \
   -e OIDC_CLIENT_SECRET=your-client-secret \
   -e OIDC_REDIRECT_URL=https://fail2ban-ui.example.com/auth/callback \
@@ -387,6 +388,17 @@ podman run -d \
 -e OIDC_ENABLED=true \
 -e OIDC_PROVIDER=pocketid \
 -e OIDC_ISSUER_URL=https://pocket-id.example.com \
+-e OIDC_CLIENT_ID=fail2ban-ui-client \
+-e OIDC_CLIENT_SECRET=your-secret \
+-e OIDC_REDIRECT_URL=https://fail2ban-ui.example.com/auth/callback
+```
+
+**Generic:**
+```bash
+-e OIDC_ENABLED=true \
+-e OIDC_PROVIDER=generic \
+-e OIDC_ISSUER_URL=https://generic-oidc.example.com \
+-e OIDC_DISCOVERY_URL=https://your-oidc-provider.com/.well-known/openid-configuration \
 -e OIDC_CLIENT_ID=fail2ban-ui-client \
 -e OIDC_CLIENT_SECRET=your-secret \
 -e OIDC_REDIRECT_URL=https://fail2ban-ui.example.com/auth/callback
@@ -461,6 +473,7 @@ When running as a systemd service, set OIDC environment variables in the systemd
 Environment="OIDC_ENABLED=true"
 Environment="OIDC_PROVIDER=keycloak"
 Environment="OIDC_ISSUER_URL=https://keycloak.example.com/realms/your-realm"
+Environment="OIDC_DISCOVERY_URL=https://your-oidc-provider.com/.well-known/openid-configuration"
 Environment="OIDC_CLIENT_ID=fail2ban-ui"
 Environment="OIDC_CLIENT_SECRET=your-client-secret"
 Environment="OIDC_REDIRECT_URL=https://fail2ban-ui.example.com/auth/callback"
@@ -680,6 +693,7 @@ OIDC_REDIRECT_URL=https://fail2ban-ui.example.com/auth/callback
 
 **Optional Environment Variables:**
 ```bash
+OIDC_DISCOVERY_URL=https://your-oidc-provider.com/.well-known/openid-configuration # Configuration auto-discovery file for generic OIDC providers
 OIDC_SCOPES=openid,profile,email          # Default: openid,profile,email
 OIDC_SESSION_SECRET=your-secret-key        # Auto-generated if not provided
 OIDC_SESSION_MAX_AGE=3600                  # Session timeout in seconds (default: 3600)
@@ -718,6 +732,17 @@ OIDC_REDIRECT_URL=https://fail2ban-ui.example.com/auth/callback
 OIDC_ENABLED=true
 OIDC_PROVIDER=pocketid
 OIDC_ISSUER_URL=https://pocket-id.example.com
+OIDC_CLIENT_ID=fail2ban-ui-client
+OIDC_CLIENT_SECRET=your-secret
+OIDC_REDIRECT_URL=https://fail2ban-ui.example.com/auth/callback
+```
+
+**Generic:**
+```bash
+OIDC_ENABLED=true
+OIDC_PROVIDER=generic
+OIDC_ISSUER_URL=https://generic-oidc.example.com
+OIDC_DISCOVERY_URL=https://your-oidc-provider.com/.well-known/openid-configuration
 OIDC_CLIENT_ID=fail2ban-ui-client
 OIDC_CLIENT_SECRET=your-secret
 OIDC_REDIRECT_URL=https://fail2ban-ui.example.com/auth/callback

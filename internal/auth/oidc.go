@@ -80,7 +80,12 @@ func InitializeOIDC(cfg *config.OIDCConfig) (*OIDCClient, error) {
 		ctx = contextWithSkipVerify(ctx, cfg.SkipVerify)
 
 		// Try to discover OIDC provider
-		provider, err = oidc.NewProvider(ctx, cfg.IssuerURL)
+		// Use DiscoveryURL if provided (for generic providers), otherwise use IssuerURL
+		discoveryEndpoint := cfg.IssuerURL
+		if cfg.DiscoveryURL != "" {
+			discoveryEndpoint = cfg.DiscoveryURL
+		}
+		provider, err = oidc.NewProvider(ctx, discoveryEndpoint)
 		cancel()
 
 		if err == nil {

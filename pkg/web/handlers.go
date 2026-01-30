@@ -3178,6 +3178,11 @@ func LogoutHandler(c *gin.Context) {
 				// Standard OIDC format for Authentik and Pocket-ID
 				// Format: {issuer}/protocol/openid-connect/logout?redirect_uri={redirect}
 				logoutURL = fmt.Sprintf("%s/protocol/openid-connect/logout?redirect_uri=%s", issuerURL, redirectURIEncoded)
+			case "generic":
+				// For generic providers, try standard OIDC end_session_endpoint format
+				// Format: {issuer}/protocol/openid-connect/logout?post_logout_redirect_uri={redirect}
+				// or standard RP-Initiated Logout: {end_session_endpoint}?post_logout_redirect_uri={redirect}&client_id={client_id}
+				logoutURL = fmt.Sprintf("%s/protocol/openid-connect/logout?post_logout_redirect_uri=%s&client_id=%s", issuerURL, redirectURIEncoded, clientIDEncoded)
 			default:
 				// Fallback to standard OIDC format
 				logoutURL = fmt.Sprintf("%s/protocol/openid-connect/logout?redirect_uri=%s", issuerURL, redirectURIEncoded)
