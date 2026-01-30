@@ -13,7 +13,10 @@ RUN go mod download
 COPY . .
 
 # Build Go application (as static binary)
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o fail2ban-ui ./cmd/server/main.go
+# Use build arguments to automatically detect target architecture
+ARG TARGETOS=linux
+ARG TARGETARCH
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o fail2ban-ui ./cmd/server/main.go
 
 # ===================================
 #  STAGE 2: Standalone UI Version
