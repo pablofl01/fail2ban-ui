@@ -74,18 +74,28 @@ func InitializeOIDC(cfg *config.OIDCConfig) (*OIDCClient, error) {
 	var provider *oidc.Provider
 	var err error
 
+	// Determine the issuer URL to use for discovery
+	// oidc.NewProvider() automatically appends /.well-known/openid-configuration
+	// So we must always pass the base URL, not the full discovery URL
+	issuerURL := cfg.IssuerURL
+	if cfg.DiscoveryURL != "" {
+		// Extract base URL from discovery URL if provided
+		// e.g., https://provider.com/.well-known/openid-configuration -> https://provider.com
+		if strings.HasSuffix(cfg.DiscoveryURL, "/.well-known/openid-configuration") {
+			issuerURL = strings.TrimSuffix(cfg.DiscoveryURL, "/.well-known/openid-configuration")
+		} else {
+			// If it's a custom discovery path, use it as-is (rare case)
+			issuerURL = cfg.DiscoveryURL
+		}
+	}
+
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		// Create context with timeout for each attempt
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		ctx = contextWithSkipVerify(ctx, cfg.SkipVerify)
 
 		// Try to discover OIDC provider
-		// Use DiscoveryURL if provided (for generic providers), otherwise use IssuerURL
-		discoveryEndpoint := cfg.IssuerURL
-		if cfg.DiscoveryURL != "" {
-			discoveryEndpoint = cfg.DiscoveryURL
-		}
-		provider, err = oidc.NewProvider(ctx, discoveryEndpoint)
+		provider, err = oidc.NewProvider(ctx, issuerURL)
 		cancel()
 
 		if err == nil {

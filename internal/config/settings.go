@@ -1474,16 +1474,21 @@ func GetOIDCConfigFromEnv() (*OIDCConfig, error) {
 		return nil, fmt.Errorf("Either OIDC_ISSUER_URL or OIDC_DISCOVERY_URL environment variable is required when OIDC_ENABLED=true")
 	}
 
-	// If only DiscoveryURL is provided for generic provider, try to extract IssuerURL
-	if config.Provider == "generic" && config.IssuerURL == "" && config.DiscoveryURL != "" {
+	// If only DiscoveryURL is provided, try to extract IssuerURL
+	// This works for any provider, not just generic
+	if config.IssuerURL == "" && config.DiscoveryURL != "" {
 		if strings.HasSuffix(config.DiscoveryURL, "/.well-known/openid-configuration") {
 			config.IssuerURL = strings.TrimSuffix(config.DiscoveryURL, "/.well-known/openid-configuration")
+		} else {
+			// If discovery URL doesn't have the standard suffix, use it as the issuer URL
+			// The auth package will handle extracting the base URL if needed
+			config.IssuerURL = config.DiscoveryURL
 		}
 	}
 
 	// Validate that we have an IssuerURL (either provided or extracted)
 	if config.IssuerURL == "" {
-		return nil, fmt.Errorf("OIDC_ISSUER_URL is required when OIDC_ENABLED=true")
+		return nil, fmt.Errorf("Could not determine OIDC_ISSUER_URL from provided configuration")
 	}
 
 	config.ClientID = os.Getenv("OIDC_CLIENT_ID")
